@@ -12,6 +12,6 @@ public class HelloResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, String> hello() {
-        return Map.of("message", "Hello, World!");
+        return Map.of("message", "Hello from JAX-RS service!");
     }
 }

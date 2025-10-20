@@ -1,0 +1,94 @@
+openapi: "3.1.0"
+info:
+  title: HR Service API
+  description: |
+    OpenAPI specification for the HR service which provides operations
+    related to workers in the organization.
+    - `/fire/{id}` : dismiss an employee with a specified ID from the organization
+    - `/index/{worker-id}/{coeff}` : index the salary of the specified employee by a specified coefficient
+  version: "1.0"
+  contact:
+    name: Mila T
+    email: myilanka8@gmail.com
+servers:
+  - url: http://localhost:8081/spring-service/api
+tags:
+  - name: HR
+    description: Operations related to HR actions
+
+paths:
+  /hello:
+    get:
+      tags:
+        - HR
+      responses:
+        '200':
+          description: Greeting message
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Hello from HR Service!"
+  /hr/fire/{id}:
+    post:
+      tags:
+        - HR
+      summary: Fire a worker
+      description: Removes a worker from the organization by ID.
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/id'
+      responses:
+        '200':
+          description: Worker successfully fired
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Worker with ID 5 has been successfully fired."
+        '404':
+          description: Worker not found
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/ErrorResponse'
+
+  /hr/index/{id}/{coeff}:
+    post:
+      tags:
+        - HR
+      summary: Index a worker's salary
+      description: Updates the salary of a worker by multiplying it by the specified coefficient.
+      parameters:
+        - $ref: 'models.yaml#/components/parameters/id'
+        - $ref: 'models.yaml#/components/parameters/salary-coeff'
+      responses:
+        '200':
+          description: Salary successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/IndexSalaryResponse'
+        '404':
+          description: Worker not found
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/ErrorResponse'
+        '400':
+          description: Bad Request - Invalid coefficient
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'models.yaml#/components/schemas/ErrorResponse'
