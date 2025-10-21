@@ -11,11 +11,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
-    compileOnly("jakarta.json.bind:jakarta.json.bind-api:3.0.0")
-    compileOnly("jakarta.json:jakarta.json-api:2.1.1")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
+    compileOnly ("org.projectlombok:lombok:1.18.30")  // Compile-time only
+    annotationProcessor ("org.projectlombok:lombok:1.18.30")
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 tasks.test {
