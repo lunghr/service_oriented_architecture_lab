@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.model.NewWorker;
+import com.example.model.SearchCriteria;
 import com.example.model.Worker;
 import com.example.model.WorkerUpdateDTO;
 import com.example.service.WorkerService;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.Map;
 
 @Path("/workers")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -27,27 +30,47 @@ public class WorkerController {
     }
 
     @GET
-    public Response getWorkers(@QueryParam("page") int page, @QueryParam("size") int size){
+    public Response getWorkers(@QueryParam("page") int page, @QueryParam("size") int size) {
         return Response.ok(workerService.getWorkers(page, size)).build();
     }
 
     @GET
     @Path("/{id}")
-    public Response getWorkerById(@PathParam("id") Long id){
+    public Response getWorkerById(@PathParam("id") Long id) {
         return Response.ok(workerService.getWorkerById(id)).build();
     }
 
     @PATCH
     @Path("/{id}")
-    public Response updateWorkerById(@PathParam("id") Long id, @Valid WorkerUpdateDTO workerUpdateDTO){
+    public Response updateWorkerById(@PathParam("id") Long id, @Valid WorkerUpdateDTO workerUpdateDTO) {
         return Response.ok(workerService.updateWorker(id, workerUpdateDTO)).build();
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteWorkerById(@PathParam("id") Long id){
+    public Response deleteWorkerById(@PathParam("id") Long id) {
         workerService.deleteWorkerById(id);
-        return Response.status(204).build();
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Path("/by-start-date")
+    public Response deleteWorkerByStartDate(@QueryParam("startDate") String date) {
+        workerService.deleteWorkerByStartDate(date);
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/min-salary")
+    public Response getWorkerWithMinSalary() {
+        return Response.ok(workerService.getWorkerWithMinSalary()).build();
+    }
+
+    @POST
+    @Path("/count-by-start-date")
+    public Response countWorkersByStartDate(@QueryParam("startDate") String date) {
+        int count = workerService.countWorkersWithStartDateBefore(date);
+        return Response.ok(Map.of("count", count)).build();
     }
 
 

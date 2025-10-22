@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
@@ -44,9 +45,6 @@ public class WorkerRepository {
         return query.getResultList();
     }
 
-    public Long getTotalRecords() {
-        return entityManager.createQuery("SELECT COUNT(w) FROM Worker w", Long.class).getSingleResult();
-    }
 
     public Worker findById(Long id){
         return entityManager.find(Worker.class, id);
@@ -66,5 +64,31 @@ public class WorkerRepository {
             ).build());
         }
     }
+
+    public  List<Worker> findByStartDate(LocalDate date) {
+        TypedQuery<Worker> query = entityManager.createQuery(
+                "SELECT w FROM Worker w WHERE w.startDate = :startDate", Worker.class);
+        query.setParameter("startDate", date);
+        return query.getResultList();
+    }
+
+    public Worker findWorkerWithMinSalary(){
+        List<Worker> resultList = entityManager.createQuery("SELECT w FROM Worker w WHERE w.salary IS NOT NULL ORDER BY w.salary ASC", Worker.class).setMaxResults(1).getResultList();
+        return resultList.isEmpty() ? null : resultList.getFirst();
+    }
+
+    public int countByStartDateBefore(LocalDate date) {
+        TypedQuery<Long> query = entityManager.createQuery(
+                "SELECT COUNT(w) FROM Worker w WHERE w.startDate < :startDate", Long.class);
+        query.setParameter("startDate", date);
+        return query.getSingleResult().intValue();
+    }
+
+
+
+
+
+
+
 
 }

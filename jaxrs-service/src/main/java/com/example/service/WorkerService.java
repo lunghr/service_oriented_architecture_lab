@@ -3,13 +3,17 @@ package com.example.service;
 import com.example.model.*;
 import com.example.repo.WorkerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.time.format.DateTimeParseException;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class WorkerService {
@@ -75,6 +79,53 @@ public class WorkerService {
 
     public void deleteWorkerById(Long id) {
         workerRepository.delete(id);
+    }
+
+
+    public void deleteWorkerByStartDate(String date) {
+        try {
+            LocalDate parsedDate = LocalDate.parse(date);
+            List<Worker> workersToDelete = workerRepository.findByStartDate(parsedDate);
+            if (workersToDelete.isEmpty()){
+                return;
+            }
+            Worker futureUnemployed = workersToDelete.getFirst();
+            workerRepository.delete(futureUnemployed.getId());
+        }catch (DateTimeParseException e){
+            throw new BadRequestException(Response.status(400).entity(
+                    ErrorResponse.builder()
+                            .code(400)
+                            .message("⚠️ Invalid date format")
+                            .build()
+            ).build());
+        }
+    }
+
+    public Worker getWorkerWithMinSalary(){
+        Worker worker = workerRepository.findWorkerWithMinSalary();
+        if (worker == null) {
+            throw new NotFoundException(Response.status(Response.Status.NOT_FOUND).entity(
+                            ErrorResponse.builder()
+                                    .code(Response.Status.NOT_FOUND.getStatusCode())
+                                    .message("⚠️ No workers found.")
+                                    .build())
+                    .build());
+        }
+        return worker;
+    }
+
+    public int countWorkersWithStartDateBefore(String date) {
+        try{
+            LocalDate parsedDate = LocalDate.parse(date);
+            return workerRepository.countByStartDateBefore(parsedDate);
+        } catch (DateTimeParseException e){
+            throw new BadRequestException(Response.status(400).entity(
+                    ErrorResponse.builder()
+                            .code(400)
+                            .message("⚠️ Invalid date format")
+                            .build()
+            ).build());
+        }
     }
 
 
