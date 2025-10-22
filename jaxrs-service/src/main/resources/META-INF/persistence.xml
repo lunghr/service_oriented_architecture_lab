@@ -8,6 +8,7 @@
         <class>com.example.model.Coordinates</class>
         <class>com.example.model.ErrorResponse</class>
         <class>com.example.model.NewWorker</class>
+        <class>com.example.model.WorkerUpdateDTO</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>

@@ -15,6 +15,8 @@ dependencies {
     compileOnly ("org.projectlombok:lombok:1.18.30")  // Compile-time only
     annotationProcessor ("org.projectlombok:lombok:1.18.30")
     implementation("org.slf4j:slf4j-api:2.0.7")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
     implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 

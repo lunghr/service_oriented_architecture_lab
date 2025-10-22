@@ -18,7 +18,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
                 .code(Response.Status.BAD_REQUEST.getStatusCode())
                 .message(exception.getConstraintViolations()
                         .stream()
-                        .map(cv -> "⚠\uFE0F Invalid data: " + cv.getPropertyPath() + " " + cv.getMessage())
+                        .map(cv -> "⚠️ Invalid data: " + cv.getPropertyPath() + " " + cv.getMessage())
                         .reduce((msg1, msg2) -> msg1 + ", " + msg2)
                         .orElse("Validation error"))
                 .build();

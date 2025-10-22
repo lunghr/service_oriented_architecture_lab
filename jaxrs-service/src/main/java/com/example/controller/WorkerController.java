@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.NewWorker;
 import com.example.model.Worker;
+import com.example.model.WorkerUpdateDTO;
 import com.example.service.WorkerService;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -27,7 +28,26 @@ public class WorkerController {
 
     @GET
     public Response getWorkers(@QueryParam("page") int page, @QueryParam("size") int size){
-        return Response.ok(workerService.get(page, size)).build();
+        return Response.ok(workerService.getWorkers(page, size)).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response getWorkerById(@PathParam("id") Long id){
+        return Response.ok(workerService.getWorkerById(id)).build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    public Response updateWorkerById(@PathParam("id") Long id, @Valid WorkerUpdateDTO workerUpdateDTO){
+        return Response.ok(workerService.updateWorker(id, workerUpdateDTO)).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deleteWorkerById(@PathParam("id") Long id){
+        workerService.deleteWorkerById(id);
+        return Response.status(204).build();
     }
 
 

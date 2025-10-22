@@ -17,9 +17,10 @@ public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
 
     @Override
     public Response toResponse(EJBException exception) {
-        if (exception.getCause() instanceof BadRequestException bre) {
+        if (exception.getCause() instanceof WebApplicationException bre) {
             return bre.getResponse();
         }
+
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(ErrorResponse.builder()
