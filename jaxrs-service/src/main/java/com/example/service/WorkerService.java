@@ -23,19 +23,20 @@ public class WorkerService {
             Worker worker = Worker.fromNewWorker(newWorker);
             workerRepository.save(worker);
             return worker;
-        }catch (Throwable ex){
+        } catch (Throwable ex) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
-                    .code(500)
-                    .message("⚠\uFE0F Could not create worker: " + ex.getMessage()))
+                            .code(500)
+                            .message("⚠\uFE0F Could not create worker: " + ex.getMessage()))
                     .build());
         }
     }
 
-    public List<Worker> get(int page, int size){
-        if(page < 0 || size <= 0){
+    public List<Worker> get(int page, int size) {
+        if (page < 0 || size <= 0) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
-                    .code(400)
-                    .message("⚠\uFE0F Invalid pagination parameters: page must be >= 0 and size must be > 0"))
+                            .code(400)
+                            .message("⚠\uFE0F Invalid pagination parameters: page must be >= 0 and size must be > 0")
+                            .build())
                     .build());
         }
         return workerRepository.findWithPagination(page, size);

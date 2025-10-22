@@ -18,7 +18,6 @@ public class ProcessingExceptionMapper implements ExceptionMapper<ProcessingExce
     public Response toResponse(ProcessingException exception) {
         String message = exception.getMessage();
 
-        // Проверяем, является ли причина JsonbException
         if (exception.getCause() instanceof JsonbException) {
             message = exception.getCause().getMessage();
         }
