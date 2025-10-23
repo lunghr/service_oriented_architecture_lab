@@ -9,6 +9,8 @@ build/
 out/
 jaxrs-service/src/test
 spring-service/src/test
+jaxrs-service/src/main/java/com/example/service/GlobalExceptionMapper.java
+
 
 
 .DS_Store
