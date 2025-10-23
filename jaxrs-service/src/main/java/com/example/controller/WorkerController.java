@@ -73,5 +73,11 @@ public class WorkerController {
         return Response.ok(Map.of("count", count)).build();
     }
 
+    @POST
+    @Path("/search")
+    public Response getWorkersByCriteria(@QueryParam("page") int page, @QueryParam("size") int size, @Valid SearchCriteria searchCriteria){
+        return Response.ok(workerService.getWorkersByCriteria(page, size, searchCriteria)).build();
+    }
+
 
 }

@@ -5,12 +5,14 @@ import com.example.repo.WorkerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.format.DateTimeParseException;
 import jakarta.inject.Inject;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +128,11 @@ public class WorkerService {
                             .build()
             ).build());
         }
+    }
+
+    public List<Worker> getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria){
+        List<String> sort = searchCriteria.getSort();
+        return workerRepository.sortByCriteria(sort);
     }
 
 
