@@ -132,7 +132,10 @@ public class WorkerService {
 
     public List<Worker> getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria){
         List<String> sort = searchCriteria.getSort();
-        return workerRepository.sortByCriteria(sort);
+        Map<String, String> filter = searchCriteria.getFilter().stream().map(s-> s.split(":", 2))
+                .filter(arr -> arr.length == 2)
+                .collect(HashMap::new, (m, a) -> m.put(a[0], a[1]), HashMap::putAll);
+        return workerRepository.filterByCriteria(filter);
     }
 
 

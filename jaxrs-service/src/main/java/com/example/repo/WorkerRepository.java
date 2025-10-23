@@ -10,10 +10,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Order;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -23,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class WorkerRepository {
@@ -105,13 +103,45 @@ public class WorkerRepository {
                 } else {
                     orders.add(criteriaBuilder.asc(root.get(s)));
                 }
-            }catch (IllegalArgumentException ignored){
+            } catch (IllegalArgumentException ignored) {
             }
         }
         criteriaQuery.select(root);
         criteriaQuery.orderBy(orders);
         TypedQuery<Worker> workers = entityManager.createQuery(criteriaQuery);
         return workers.getResultList();
+    }
+
+    public List<Worker> filterByCriteria(Map<String, String> filter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Worker> criteriaQuery = criteriaBuilder.createQuery(Worker.class);
+        Root<Worker> root = criteriaQuery.from(Worker.class);
+        List<Predicate> predicates = new ArrayList<>();
+        for (String key : filter.keySet()) {
+            try {
+                switch (key) {
+                    case "position", "status":
+                        predicates.add(criteriaBuilder.equal(root.get(key), filter.get(key)));
+                        break;
+                    case "organization":
+                        predicates.add(criteriaBuilder.like(root.get(key).get("id"), "%" + filter.get(key) + "%"));
+                        break;
+                    case "name":
+                        predicates.add(criteriaBuilder.like(root.get(key), "%" + filter.get(key) + "%"));
+                        break;
+                    case "startDate":
+                        predicates.add(criteriaBuilder.equal(root.get(key), LocalDate.parse(filter.get(key))));
+                        break;
+                    case "salary", "x", "y":
+                        predicates.add(criteriaBuilder.equal(root.get(key), Long.parseLong(filter.get(key))));
+                        break;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        criteriaQuery.where(predicates.toArray(new Predicate[0]));
+        TypedQuery<Worker> query = entityManager.createQuery(criteriaQuery);
+        return query.getResultList();
     }
 
 
