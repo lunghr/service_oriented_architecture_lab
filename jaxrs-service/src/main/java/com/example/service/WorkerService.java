@@ -3,7 +3,9 @@ package com.example.service;
 import com.example.model.*;
 import com.example.repo.WorkerRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+
 import java.time.format.DateTimeParseException;
+
 import jakarta.inject.Inject;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
@@ -40,7 +42,7 @@ public class WorkerService {
         }
     }
 
-    public List<Worker> getWorkers(int page, int size) {
+    public WorkersResponse getWorkers(int page, int size) {
         if (page < 0 || size <= 0) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
                             .code(400)
@@ -48,7 +50,20 @@ public class WorkerService {
                             .build())
                     .build());
         }
-        return workerRepository.findWithPagination(page, size);
+        List<Worker> workers = workerRepository.findWithPagination(page, size);
+        Long totalElements = workerRepository.countByCriteria(new SearchCriteria());
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return WorkersResponse.builder()
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .content(workers)
+                .first(page == 1)
+                .last(page >= totalPages)
+                .size(size)
+                .page(page)
+                .build();
+
     }
 
     public Worker getWorkerById(Long id) {
@@ -88,12 +103,12 @@ public class WorkerService {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
             List<Worker> workersToDelete = workerRepository.findByStartDate(parsedDate);
-            if (workersToDelete.isEmpty()){
+            if (workersToDelete.isEmpty()) {
                 return;
             }
             Worker futureUnemployed = workersToDelete.getFirst();
             workerRepository.delete(futureUnemployed.getId());
-        }catch (DateTimeParseException e){
+        } catch (DateTimeParseException e) {
             throw new BadRequestException(Response.status(400).entity(
                     ErrorResponse.builder()
                             .code(400)
@@ -103,7 +118,7 @@ public class WorkerService {
         }
     }
 
-    public Worker getWorkerWithMinSalary(){
+    public Worker getWorkerWithMinSalary() {
         Worker worker = workerRepository.findWorkerWithMinSalary();
         if (worker == null) {
             throw new NotFoundException(Response.status(Response.Status.NOT_FOUND).entity(
@@ -117,10 +132,10 @@ public class WorkerService {
     }
 
     public int countWorkersWithStartDateBefore(String date) {
-        try{
+        try {
             LocalDate parsedDate = LocalDate.parse(date);
             return workerRepository.countByStartDateBefore(parsedDate);
-        } catch (DateTimeParseException e){
+        } catch (DateTimeParseException e) {
             throw new BadRequestException(Response.status(400).entity(
                     ErrorResponse.builder()
                             .code(400)
@@ -130,12 +145,27 @@ public class WorkerService {
         }
     }
 
-    public List<Worker> getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria){
-        List<String> sort = searchCriteria.getSort();
-        Map<String, String> filter = searchCriteria.getFilter().stream().map(s-> s.split(":", 2))
-                .filter(arr -> arr.length == 2)
-                .collect(HashMap::new, (m, a) -> m.put(a[0], a[1]), HashMap::putAll);
-        return workerRepository.filterByCriteria(filter);
+    public WorkersResponse getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria) {
+        if (page < 0 || size <= 0) {
+            throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
+                            .code(400)
+                            .message("⚠️ Invalid pagination parameters: page must be >= 0 and size must be > 0")
+                            .build())
+                    .build());
+        }
+        List<Worker> workers = workerRepository.searchByCriteria(searchCriteria, page, size);
+        Long totalElements = workerRepository.countByCriteria(searchCriteria);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return WorkersResponse.builder()
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .content(workers)
+                .first(page == 1)
+                .last(page >= totalPages)
+                .size(size)
+                .page(page)
+                .build();
     }
 
 
