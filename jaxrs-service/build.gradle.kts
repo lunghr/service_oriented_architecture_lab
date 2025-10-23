@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
-    compileOnly ("org.projectlombok:lombok:1.18.30")  // Compile-time only
+    compileOnly ("org.projectlombok:lombok:1.18.30")
     annotationProcessor ("org.projectlombok:lombok:1.18.30")
     implementation("org.slf4j:slf4j-api:2.0.7")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")

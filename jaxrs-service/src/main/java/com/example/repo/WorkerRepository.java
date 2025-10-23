@@ -28,8 +28,6 @@ import java.util.Map;
 @ApplicationScoped
 public class WorkerRepository {
 
-    private final static Logger logger = LoggerFactory.getLogger(WorkerRepository.class);
-
     @Inject
     private OrganizationRepository organizationRepository;
 
@@ -59,6 +57,7 @@ public class WorkerRepository {
     public Worker findById(Long id) {
         return entityManager.find(Worker.class, id);
     }
+
 
     @Transactional
     public void delete(Long id) {

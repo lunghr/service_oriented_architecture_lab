@@ -53,7 +53,7 @@ public class Worker {
         return Worker.builder()
                 .name(newWorker.getName())
                 .coordinates(newWorker.getCoordinates())
-                .salary(newWorker.getSalary() != null ? newWorker.getSalary() : null)
+                .salary(newWorker.getSalary() != null ? newWorker.getSalary() : 0)
                 .startDate(newWorker.getStartDate())
                 .position(newWorker.getPosition() != null ? Position.valueOf(newWorker.getPosition()) : null)
                 .status(Status.valueOf(newWorker.getStatus()))

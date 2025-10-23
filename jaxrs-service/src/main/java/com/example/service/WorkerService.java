@@ -12,6 +12,8 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -21,7 +23,6 @@ import java.util.Map;
 
 @ApplicationScoped
 public class WorkerService {
-
     @Inject
     private WorkerRepository workerRepository;
 
