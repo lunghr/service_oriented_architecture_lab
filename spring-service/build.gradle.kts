@@ -33,3 +33,8 @@ tasks.test {
 tasks.war{
     archiveFileName.set("spring-service.war")
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}

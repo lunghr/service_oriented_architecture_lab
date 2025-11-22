@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/hr")
 public class HRController {
 
-    private final static String BASE_URL = "http://localhost:8080/jaxrs-service/api/workers/";
+    private final static String BASE_URL = "https://localhost:8543/jaxrs-service/api/workers/";
 
     private final WebClient webClient = WebClient.create();
 
@@ -41,6 +41,10 @@ public class HRController {
 
     @PostMapping(value = "/index/{id}/{coeff}")
     public ResponseEntity<?> indexSalary(@PathVariable("id") Long id, @PathVariable("coeff") Double coeff) {
+        System.out.println("=== SSL DEBUG ===");
+        System.out.println("java.home = " + System.getProperty("java.home"));
+        System.out.println("java.version = " + System.getProperty("java.version"));
+        System.out.println("user.dir = " + System.getProperty("user.dir"));
 
         Long salary = webClient.get()
                 .uri(BASE_URL + id)
@@ -74,7 +78,7 @@ public class HRController {
                 .block();
 
         return ResponseEntity.ok(
-                Response.builder().message("Worker with ID " + id + " salary successfully indexed: " + newSalary ).build()
+                Response.builder().message(String.valueOf(newSalary)).build()
         );
     }
 
