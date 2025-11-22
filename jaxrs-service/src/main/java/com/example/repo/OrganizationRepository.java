@@ -28,6 +28,7 @@ public class OrganizationRepository {
         return entityManager.find(Organization.class, fullName);
     }
 
+    @Transactional
     private void updateNonNullFields(Organization target, Organization source) {
         if (source.getEmployeesCount() != null) {
             target.setEmployeesCount(source.getEmployeesCount());

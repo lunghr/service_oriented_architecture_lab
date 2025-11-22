@@ -33,7 +33,7 @@ public class WorkerService {
     public Worker create(NewWorker newWorker) {
         try {
             Worker worker = Worker.fromNewWorker(newWorker);
-            workerRepository.save(worker);
+            worker = workerRepository.save(worker);
             return worker;
         } catch (Throwable ex) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
@@ -43,7 +43,9 @@ public class WorkerService {
         }
     }
 
+    @Transactional
     public WorkersResponse getWorkers(int page, int size) {
+        System.out.println("Fetching workers with page: " + page + " and size: " + size);
         if (page < 0 || size <= 0) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
                             .code(400)
@@ -67,6 +69,7 @@ public class WorkerService {
 
     }
 
+    @Transactional
     public Worker getWorkerById(Long id) {
         Worker worker = workerRepository.findById(id);
         if (worker == null) {
@@ -80,6 +83,7 @@ public class WorkerService {
         return worker;
     }
 
+    @Transactional
     public Worker updateWorker(Long id, WorkerUpdateDTO workerUpdateDTO) {
         Worker existingWorker = workerRepository.findById(id);
         if (existingWorker == null) {
@@ -95,11 +99,12 @@ public class WorkerService {
         return workerRepository.findById(id);
     }
 
+    @Transactional
     public void deleteWorkerById(Long id) {
         workerRepository.delete(id);
     }
 
-
+    @Transactional
     public void deleteWorkerByStartDate(String date) {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
@@ -119,6 +124,7 @@ public class WorkerService {
         }
     }
 
+    @Transactional
     public Worker getWorkerWithMinSalary() {
         Worker worker = workerRepository.findWorkerWithMinSalary();
         if (worker == null) {
@@ -132,6 +138,7 @@ public class WorkerService {
         return worker;
     }
 
+    @Transactional
     public int countWorkersWithStartDateBefore(String date) {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
@@ -146,6 +153,7 @@ public class WorkerService {
         }
     }
 
+    @Transactional
     public WorkersResponse getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria) {
         if (page < 0 || size <= 0) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()

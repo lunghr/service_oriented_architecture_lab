@@ -27,3 +27,8 @@ tasks.test {
 tasks.war {
     archiveFileName.set("jaxrs-service.war")
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}

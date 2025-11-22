@@ -16,14 +16,10 @@ import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class WorkerRepository {
@@ -35,17 +31,23 @@ public class WorkerRepository {
     private EntityManager entityManager;
 
     @Transactional
-    public void save(Worker worker) {
+    public Worker save(Worker worker) {
         organizationRepository.save(worker.getOrganization());
         Organization organization = organizationRepository.findByFullName(worker.getOrganization().getFullName());
         worker.setOrganization(organization);
 
-        if (worker.getId() != null) {
-            entityManager.persist(worker);
+        if (worker.getId() == null) {
+            entityManager.persist(worker); // worker получит id
+            entityManager.flush();         // на всякий случай, чтобы id точно был сгенерирован
+            return worker;
+        } else {
+            Worker merged = entityManager.merge(worker);
+            entityManager.flush();
+            return merged;
         }
-        entityManager.merge(worker);
     }
 
+    @Transactional
     public List<Worker> findWithPagination(int page, int size) {
         TypedQuery<Worker> query = entityManager.createQuery("SELECT w FROM Worker w", Worker.class)
                 .setFirstResult((page - 1) * size)
@@ -53,7 +55,7 @@ public class WorkerRepository {
         return query.getResultList();
     }
 
-
+    @Transactional
     public Worker findById(Long id) {
         return entityManager.find(Worker.class, id);
     }
@@ -74,6 +76,7 @@ public class WorkerRepository {
         }
     }
 
+    @Transactional
     public List<Worker> findByStartDate(LocalDate date) {
         TypedQuery<Worker> query = entityManager.createQuery(
                 "SELECT w FROM Worker w WHERE w.startDate = :startDate", Worker.class);
@@ -81,11 +84,13 @@ public class WorkerRepository {
         return query.getResultList();
     }
 
+    @Transactional
     public Worker findWorkerWithMinSalary() {
         List<Worker> resultList = entityManager.createQuery("SELECT w FROM Worker w WHERE w.salary IS NOT NULL ORDER BY w.salary ASC", Worker.class).setMaxResults(1).getResultList();
         return resultList.isEmpty() ? null : resultList.getFirst();
     }
 
+    @Transactional
     public int countByStartDateBefore(LocalDate date) {
         TypedQuery<Long> query = entityManager.createQuery(
                 "SELECT COUNT(w) FROM Worker w WHERE w.startDate < :startDate", Long.class);
@@ -93,7 +98,7 @@ public class WorkerRepository {
         return query.getSingleResult().intValue();
     }
 
-
+    @Transactional
     public List<Worker> searchByCriteria(SearchCriteria searchCriteria, int page, int size) {
         List<String> sort = searchCriteria.getSort();
 
@@ -127,6 +132,7 @@ public class WorkerRepository {
         return workers.getResultList();
     }
 
+    @Transactional
     public Long countByCriteria(SearchCriteria searchCriteria) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
