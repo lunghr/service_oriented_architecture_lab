@@ -1,0 +1,351 @@
+components:
+  schemas:
+    Worker:
+      type: object
+      description: A worker object - main entity of the collection.
+      properties:
+        id:
+          type: integer
+          description: Unique identifier of the worker.
+          example: 1
+          minimum: 1
+        name:
+          type: string
+          description: Name of the worker. Cannot be null or empty.
+          example: Jesse Pinkman
+          minLength: 1
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        salary:
+          type: integer
+          format: int64
+          description: Salary of the worker. Must be greater than 0.
+          minimum: 1
+          example: 50000
+        startDate:
+          type: string
+          format: date-time
+          description: The date when the worker started. Cannot be null. The value must be generated automatically.
+          example: '2023-10-01'
+        creationDate:
+          type: string
+          format: date-time
+          description: The date when the worker record was created. Cannot be null. The value is generated automatically.
+          example: '2023-10-01T09:00:00Z'
+        position:
+          $ref: '#/components/schemas/Position'
+        status:
+          $ref: '#/components/schemas/Status'
+        organization:
+          $ref: '#/components/schemas/Organization'
+      required:
+        - id
+        - name
+        - coordinates
+        - startDate
+        - status
+        - organization
+    Coordinates:
+      type: object
+      description: Coordinates of the worker's location.
+      properties:
+        x:
+          description: X coordinate. Must be less than or equal to 950. Cannot be null.
+          type: number
+          format: double
+          maximum: 950
+          example: 123.45
+        y:
+          description: Y coordinate. Must be greater than -706. Cannot be null.
+          type: number
+          format: double
+          minimum: -706
+          example: -500.67
+      required:
+        - x
+        - y
+    Organization:
+      type: object
+      description: Organization details of the worker.
+      properties:
+        fullName:
+          type: string
+          description: Full name of the organization. Must be unique and cannot be null or empty.
+          example: Some Organization Inc.
+          minLength: 1
+          maxLength: 1092
+        employeesCount:
+          type: integer
+          description: Number of employees in the organization. Must be greater than 0.
+          minimum: 1
+          example: 150
+        organizationType:
+          $ref: '#/components/schemas/OrganizationType'
+        officialAddress:
+          type: string
+          description: Official address of the organization. Can be null.
+          example: 1234 Elm Street, Springfield
+      required:
+        - fullName
+
+
+    Position:
+      type: string
+      description: Position of the worker.
+      enum:
+        - LABORER
+        - HUMAN_RESOURCES
+        - HEAD_OF_DIVISION
+        - HEAD_OF_DEPARTMENT
+        - CLEANER
+    Status:
+      type: string
+      description: Status of the worker.
+      enum:
+        - HIRED
+        - RECOMMENDED_FOR_PROMOTION
+        - PROBATION
+    OrganizationType:
+      type: string
+      description: Type of the organization.
+      enum:
+        - PUBLIC
+        - TRUST
+        - PRIVATE_LIMITED_COMPANY
+        - OPEN_JOINT_STOCK_COMPANY
+    NewWorker:
+      type: object
+      description: A new worker object for creation (without id and startDate).
+      properties:
+        name:
+          type: string
+          description: Name of the worker. Cannot be null or empty.
+          example: Jesse Pinkman
+          minLength: 1
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        salary:
+          type: integer
+          format: int64
+          description: Salary of the worker. Must be greater than 0.
+          minimum: 1
+          example: 50000
+        startDate:
+          type: string
+          format: date-time
+          description: The date when the worker started. Cannot be null. The value must be provided by the client.
+          example: '2023-10-01'
+        position:
+          $ref: '#/components/schemas/Position'
+        status:
+          $ref: '#/components/schemas/Status'
+        organization:
+          $ref: '#/components/schemas/Organization'
+      required:
+        - name
+        - coordinates
+        - startDate
+        - status
+        - organization
+    WorkerUpdateDTO:
+      type: object
+      description: Data Transfer Object for updating a worker.
+      properties:
+        name:
+          type: string
+          description: Name of the worker. Cannot be null or empty.
+          example: Jesse Pinkman
+          minLength: 1
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        startDate:
+          type: string
+          format: date-time
+          description: The date when the worker started. Cannot be null.
+          example: '2023-10-02'
+        salary:
+          type: integer
+          format: int64
+          description: Salary of the worker. Must be greater than 0.
+          minimum: 1
+          example: 50000
+        position:
+          $ref: '#/components/schemas/Position'
+        status:
+          $ref: '#/components/schemas/Status'
+        organization:
+          $ref: '#/components/schemas/Organization'
+    ErrorResponse:
+      type: object
+      description: General error response.
+      properties:
+        code:
+          type: integer
+          description: HTTP status code.
+          example: 500
+        message:
+          type: string
+          description: Server error message.
+          example: "Internal server error."
+      required:
+        - code
+        - message
+    IndexSalaryResponse:
+      type: object
+      description: Response after indexing a worker's salary.
+      properties:
+        message:
+          type: string
+          description: Confirmation message.
+          example: "Salary of worker 12 updated by coefficient 1.15."
+        newSalary:
+          type: integer
+          format: int64
+          description: The new salary after applying the coefficient.
+          example: 57500
+      required:
+        - message
+        - newSalary
+    SearchCriteria:
+      type: object
+      description: Search criteria for filtering workers.
+      properties:
+        sort:
+          type: array
+          description: Fields to sort by (prefix with '-' for descending order).
+          items:
+            type: string
+          example: ["-salary", "name"]
+        filter:
+          type: array
+          description: Filter criteria in the format field:value.
+          items:
+            type: string
+          example: ["position:LABORER", "status:HIRED"]
+    WorkerResponse:
+      type: object
+      description: Response containing a list of workers with pagination info.
+      properties:
+        totalItems:
+          type: integer
+          description: Total number of workers matching the criteria.
+          example: 150
+        totalPages:
+          type: integer
+          description: Total number of pages available.
+          example: 15
+        currentPage:
+          type: integer
+          description: Current page number.
+          example: 1
+        content:
+          type: array
+          description: List of workers on the current page.
+          items:
+            $ref: '#/components/schemas/Worker'
+        size:
+          type: integer
+          description: Number of items per page.
+          example: 10
+        page:
+          type: integer
+          description: Current page number.
+          example: 1
+        last:
+          type: boolean
+          description: Indicates if this is the last page.
+          example: false
+        first:
+          type: boolean
+          description: Indicates if this is the first page.
+          example: true
+      required:
+        - totalItems
+        - totalPages
+        - currentPage
+        - size
+        - page
+        - last
+        - first
+        - content
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number for pagination (default is 1).
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    size:
+      name: size
+      in: query
+      description: Number of items per page for pagination (default is 10).
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 10
+    sort:
+      name: sort
+      in: query
+      description: Field to sort by (prefix with '-' for descending order).
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+        example: ["-salary", "name"]
+    filter:
+      name: filter
+      in: query
+      description: Filter criteria in the format field:value (can be repeated).
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+        example: ["position:LABORER", "status:HIRED"]
+    id:
+      name: id
+      in: path
+      description: Unique identifier of the worker.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    start-date:
+      name: startDate
+      in: query
+      description: Start date to filter or delete workers yyyy-mm-dd.
+      required: true
+      schema:
+        type: string
+        format: date-time
+        example: '2023-10-01'
+    salary-coeff:
+      name: coeff
+      in: path
+      description: Coefficient for salary indexing (must be > 0).
+      required: true
+      schema:
+        type: number
+        format: double
+        minimum: 0.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
