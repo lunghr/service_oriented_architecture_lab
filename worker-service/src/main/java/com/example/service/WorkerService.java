@@ -124,19 +124,19 @@ public class WorkerService {
         }
     }
 
-    @Transactional
-    public Worker getWorkerWithMinSalary() {
-        Worker worker = workerRepository.findWorkerWithMinSalary();
-        if (worker == null) {
-            throw new NotFoundException(Response.status(Response.Status.NOT_FOUND).entity(
-                            ErrorResponse.builder()
-                                    .code(Response.Status.NOT_FOUND.getStatusCode())
-                                    .message("⚠️ No workers found.")
-                                    .build())
-                    .build());
-        }
-        return worker;
-    }
+//    @Transactional
+//    public Worker getWorkerWithMinSalary() {
+//        Worker worker = workerRepository.findWorkerWithMinSalary();
+//        if (worker == null) {
+//            throw new NotFoundException(Response.status(Response.Status.NOT_FOUND).entity(
+//                            ErrorResponse.builder()
+//                                    .code(Response.Status.NOT_FOUND.getStatusCode())
+//                                    .message("⚠️ No workers found.")
+//                                    .build())
+//                    .build());
+//        }
+//        return worker;
+//    }
 
     @Transactional
     public int countWorkersWithStartDateBefore(String date) {

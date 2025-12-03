@@ -1,6 +1,7 @@
 plugins {
-    id("java")
-    id("war")
+    java
+    id("org.springframework.boot") version "4.0.0"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.example"
@@ -11,7 +12,9 @@ repositories {
 }
 
 dependencies {
-    providedCompile("jakarta.platform:jakarta.jakartaee-api:10.0.0")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("jakarta.platform:jakarta.jakartaee-api:10.0.0")
     compileOnly ("org.projectlombok:lombok:1.18.30")
     annotationProcessor ("org.projectlombok:lombok:1.18.30")
     implementation("org.slf4j:slf4j-api:2.0.7")
@@ -22,10 +25,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.war {
-    archiveFileName.set("jaxrs-service.war")
 }
 
 java {

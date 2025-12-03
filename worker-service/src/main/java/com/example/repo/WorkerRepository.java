@@ -84,11 +84,11 @@ public class WorkerRepository {
         return query.getResultList();
     }
 
-    @Transactional
-    public Worker findWorkerWithMinSalary() {
-        List<Worker> resultList = entityManager.createQuery("SELECT w FROM Worker w WHERE w.salary IS NOT NULL ORDER BY w.salary ASC", Worker.class).setMaxResults(1).getResultList();
-        return resultList.isEmpty() ? null : resultList.getFirst();
-    }
+//    @Transactional
+//    public Worker findWorkerWithMinSalary() {
+//        List<Worker> resultList = entityManager.createQuery("SELECT w FROM Worker w WHERE w.salary IS NOT NULL ORDER BY w.salary ASC", Worker.class).setMaxResults(1).getResultList();
+//        return resultList.isEmpty() ? null : resultList.getFirst();
+//    }
 
     @Transactional
     public int countByStartDateBefore(LocalDate date) {

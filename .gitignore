@@ -7,9 +7,6 @@ build/
 *.iml
 *.iws
 out/
-jaxrs-service/src/test
-spring-service/src/test
-jaxrs-service/src/main/java/com/example/service/GlobalExceptionMapper.java
 
 
 
@@ -21,5 +18,8 @@ Thumbs.db
 *.tar.gz
 
 dist/
+test-service/
+worker-service/src/resources/
+
 
 
