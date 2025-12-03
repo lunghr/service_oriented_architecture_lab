@@ -1,6 +1,5 @@
 package com.example.model;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.Response;
 import org.mapstruct.Mapper;

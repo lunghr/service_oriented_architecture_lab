@@ -4,9 +4,9 @@ import com.example.model.NewWorker;
 import com.example.model.SearchCriteria;
 import com.example.model.Worker;
 import com.example.model.WorkerUpdateDTO;
-import com.example.service.WorkerService;
-import jakarta.inject.Inject;
 
+
+import com.example.service.WorkerService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.core.Response;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +17,11 @@ import java.util.Map;
 @RequestMapping("/workers")
 public class WorkerController {
 
-    @Inject
-    private WorkerService workerService;
+    private final WorkerService workerService;
+
+    public WorkerController(WorkerService workerService) {
+        this.workerService = workerService;
+    }
 
     @PostMapping
     public Response createWorker(@Valid @RequestBody NewWorker newWorker) {

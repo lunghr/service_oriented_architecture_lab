@@ -1,39 +1,35 @@
 package com.example.service;
 
 import com.example.model.*;
-import com.example.repo.WorkerRepository;
-import jakarta.enterprise.context.ApplicationScoped;
+import com.example.repo.WorkerRepositoryJAX;
 
 import java.time.format.DateTimeParseException;
 
-import jakarta.inject.Inject;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@ApplicationScoped
+@Service
 public class WorkerService {
-    @Inject
-    private WorkerRepository workerRepository;
+    private final WorkerRepositoryJAX workerRepositoryJAX;
 
-    @Inject
-    private WorkerMapper workerMapper;
+    private final WorkerMapper workerMapper;
+
+    public WorkerService(WorkerRepositoryJAX workerRepositoryJAX, WorkerMapper workerMapper) {
+        this.workerRepositoryJAX = workerRepositoryJAX;
+        this.workerMapper = workerMapper;
+    }
 
     @Transactional
     public Worker create(NewWorker newWorker) {
         try {
             Worker worker = Worker.fromNewWorker(newWorker);
-            worker = workerRepository.save(worker);
+            worker = workerRepositoryJAX.save(worker);
             return worker;
         } catch (Throwable ex) {
             throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(ErrorResponse.builder()
@@ -53,8 +49,8 @@ public class WorkerService {
                             .build())
                     .build());
         }
-        List<Worker> workers = workerRepository.findWithPagination(page, size);
-        Long totalElements = workerRepository.countByCriteria(new SearchCriteria());
+        List<Worker> workers = workerRepositoryJAX.findWithPagination(page, size);
+        Long totalElements = workerRepositoryJAX.countByCriteria(new SearchCriteria());
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
         return WorkersResponse.builder()
@@ -71,7 +67,7 @@ public class WorkerService {
 
     @Transactional
     public Worker getWorkerById(Long id) {
-        Worker worker = workerRepository.findById(id);
+        Worker worker = workerRepositoryJAX.findById(id);
         if (worker == null) {
             throw new NotFoundException(Response.status(Response.Status.NOT_FOUND).entity(
                             ErrorResponse.builder()
@@ -85,7 +81,7 @@ public class WorkerService {
 
     @Transactional
     public Worker updateWorker(Long id, WorkerUpdateDTO workerUpdateDTO) {
-        Worker existingWorker = workerRepository.findById(id);
+        Worker existingWorker = workerRepositoryJAX.findById(id);
         if (existingWorker == null) {
             throw new NotFoundException(Response.status(Response.Status.NOT_FOUND)
                     .entity(ErrorResponse.builder()
@@ -95,25 +91,25 @@ public class WorkerService {
                     .build());
         }
         workerMapper.updateWorkerFromDto(workerUpdateDTO, existingWorker);
-        workerRepository.save(existingWorker);
-        return workerRepository.findById(id);
+        workerRepositoryJAX.save(existingWorker);
+        return workerRepositoryJAX.findById(id);
     }
 
     @Transactional
     public void deleteWorkerById(Long id) {
-        workerRepository.delete(id);
+        workerRepositoryJAX.delete(id);
     }
 
     @Transactional
     public void deleteWorkerByStartDate(String date) {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
-            List<Worker> workersToDelete = workerRepository.findByStartDate(parsedDate);
+            List<Worker> workersToDelete = workerRepositoryJAX.findByStartDate(parsedDate);
             if (workersToDelete.isEmpty()) {
                 return;
             }
             Worker futureUnemployed = workersToDelete.getFirst();
-            workerRepository.delete(futureUnemployed.getId());
+            workerRepositoryJAX.delete(futureUnemployed.getId());
         } catch (DateTimeParseException e) {
             throw new BadRequestException(Response.status(400).entity(
                     ErrorResponse.builder()
@@ -124,25 +120,12 @@ public class WorkerService {
         }
     }
 
-//    @Transactional
-//    public Worker getWorkerWithMinSalary() {
-//        Worker worker = workerRepository.findWorkerWithMinSalary();
-//        if (worker == null) {
-//            throw new NotFoundException(Response.status(Response.Status.NOT_FOUND).entity(
-//                            ErrorResponse.builder()
-//                                    .code(Response.Status.NOT_FOUND.getStatusCode())
-//                                    .message("⚠️ No workers found.")
-//                                    .build())
-//                    .build());
-//        }
-//        return worker;
-//    }
 
     @Transactional
     public int countWorkersWithStartDateBefore(String date) {
         try {
             LocalDate parsedDate = LocalDate.parse(date);
-            return workerRepository.countByStartDateBefore(parsedDate);
+            return workerRepositoryJAX.countByStartDateBefore(parsedDate);
         } catch (DateTimeParseException e) {
             throw new BadRequestException(Response.status(400).entity(
                     ErrorResponse.builder()
@@ -162,8 +145,8 @@ public class WorkerService {
                             .build())
                     .build());
         }
-        List<Worker> workers = workerRepository.searchByCriteria(searchCriteria, page, size);
-        Long totalElements = workerRepository.countByCriteria(searchCriteria);
+        List<Worker> workers = workerRepositoryJAX.searchByCriteria(searchCriteria, page, size);
+        Long totalElements = workerRepositoryJAX.countByCriteria(searchCriteria);
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
         return WorkersResponse.builder()

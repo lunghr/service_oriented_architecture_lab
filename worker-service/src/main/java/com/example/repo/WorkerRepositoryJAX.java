@@ -6,7 +6,6 @@ import com.example.model.Organization;
 import com.example.model.SearchCriteria;
 import com.example.model.Worker;
 import com.example.service.WorkerSpecification;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,8 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@ApplicationScoped
-public class WorkerRepository {
+public class WorkerRepositoryJAX {
 
     @Inject
     private OrganizationRepository organizationRepository;
@@ -84,11 +82,6 @@ public class WorkerRepository {
         return query.getResultList();
     }
 
-//    @Transactional
-//    public Worker findWorkerWithMinSalary() {
-//        List<Worker> resultList = entityManager.createQuery("SELECT w FROM Worker w WHERE w.salary IS NOT NULL ORDER BY w.salary ASC", Worker.class).setMaxResults(1).getResultList();
-//        return resultList.isEmpty() ? null : resultList.getFirst();
-//    }
 
     @Transactional
     public int countByStartDateBefore(LocalDate date) {
