@@ -1,50 +1,11 @@
 package com.example.repo;
 
 import com.example.model.Organization;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@ApplicationScoped
-public class OrganizationRepository {
+import java.util.Optional;
 
-    @PersistenceContext(unitName = "MyPU")
-    private EntityManager entityManager;
-
-    @Transactional
-    public void save (Organization organization){
-        Organization org = entityManager.find(Organization.class, organization.getFullName());
-        if (org == null){
-            entityManager.persist(organization);
-        } else {
-            updateNonNullFields(org, organization);
-            entityManager.merge(org);
-        }
-    }
-
-    @Transactional
-    public Organization findByFullName(String fullName){
-        return entityManager.find(Organization.class, fullName);
-    }
-
-    @Transactional
-    private void updateNonNullFields(Organization target, Organization source) {
-        if (source.getEmployeesCount() != null) {
-            target.setEmployeesCount(source.getEmployeesCount());
-        }
-        if (source.getOrganizationType() != null) {
-            target.setOrganizationType(source.getOrganizationType());
-        }
-        if (source.getOfficialAddress() != null) {
-            target.setOfficialAddress(source.getOfficialAddress());
-        }
-    }
-
-
-
-
-
-
-
+public interface OrganizationRepository extends JpaRepository<@NonNull Organization, @NonNull Long> {
+    Optional<Organization> findByFullName(String fullName);
 }

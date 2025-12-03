@@ -19,7 +19,7 @@ Thumbs.db
 
 dist/
 test-service/
-worker-service/src/resources/
+worker-service/src/main/resources
 
 
 

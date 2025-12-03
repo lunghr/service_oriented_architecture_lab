@@ -7,10 +7,10 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 @Entity
-@AllArgsConstructor
+@Table(name = "workers")
+@Data
 @NoArgsConstructor
-@Setter
-@Getter
+@AllArgsConstructor
 @Builder
 public class Worker {
     @Id

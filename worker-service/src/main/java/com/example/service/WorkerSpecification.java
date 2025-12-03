@@ -1,92 +1,78 @@
 package com.example.service;
 
-import com.example.model.Position;
-import com.example.model.Status;
 import com.example.model.Worker;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.ws.rs.BadRequestException;
-
-import java.time.LocalDate;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.*;
 import java.util.*;
 
-public class WorkerSpecification {
-
+public class WorkerSpecification implements Specification<Worker> {
     private final List<String> filterList;
     private final Map<String, Object> filter = new HashMap<>();
     private final Map<String, String> operators = new HashMap<>();
 
     public WorkerSpecification(List<String> filterList) {
         this.filterList = filterList;
+        format();
     }
 
+    @Override
     public Predicate toPredicate(Root<Worker> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         List<Predicate> predicates = new ArrayList<>();
-        format();
+
         for (String key : filter.keySet()) {
             try {
                 String op = operators.getOrDefault(key, "eq");
                 Object value = filter.get(key);
+
                 switch (key) {
                     case "organization":
-                        if ("like".equals(op)) {
-                            predicates.add(criteriaBuilder.like(root.get(key).get("id"), value.toString()));
-                        } else {
-                            predicates.add(criteriaBuilder.equal(root.get(key).get("id"), value));
-                        }
+                        predicates.add(buildOrganizationPredicate(root, criteriaBuilder, op, value));
                         break;
                     case "name":
                         predicates.add(buildStringPredicate(root, criteriaBuilder, key, op, value));
                         break;
                     default:
                         predicates.add(buildGenericPredicate(root, criteriaBuilder, key, op, value));
-                        break;
                 }
             } catch (Exception e) {
-                throw new BadRequestException("Invalid filter for key: " + key + " - " + e.getMessage());
+                throw new IllegalArgumentException("Invalid filter for key: " + key + " - " + e.getMessage());
             }
         }
+
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
 
+    private Predicate buildOrganizationPredicate(Root<Worker> root, CriteriaBuilder cb, String op, Object value) {
+        String val = value.toString().replace("%", "");
+        return "like".equals(op)
+                ? cb.like(root.get("organization").get("id").as(String.class), "%" + val + "%")
+                : cb.equal(root.get("organization").get("id"), Long.parseLong(val));
+    }
+
     private Predicate buildStringPredicate(Root<Worker> root, CriteriaBuilder cb, String key, String op, Object value) {
+        String val = value.toString().replace("%", "");
         return switch (op) {
-            case "like" -> cb.like(cb.lower(root.get(key)), "%" + value.toString().toLowerCase() + "%");
-            case "eq" -> cb.equal(cb.lower(root.get(key)), value.toString().toLowerCase());
+            case "like" -> cb.like(cb.lower(root.get(key)), "%" + val.toLowerCase() + "%");
+            case "eq" -> cb.equal(cb.lower(root.get(key)), val.toLowerCase());
             default -> throw new IllegalArgumentException("Unsupported op for string: " + op);
         };
     }
 
-
     private Predicate buildGenericPredicate(Root<Worker> root, CriteriaBuilder cb, String key, String op, Object value) {
         return switch (op) {
-            case "eq" -> {
-                if (value instanceof String) {
-                    yield cb.equal(cb.lower(root.get(key)), value.toString().toLowerCase());
-                }
-                yield cb.equal(root.get(key), value);
-            }
+            case "eq" -> cb.equal(root.get(key), value);
             case "gt" -> cb.greaterThan(root.get(key), (Comparable) value);
             case "lt" -> cb.lessThan(root.get(key), (Comparable) value);
             case "gte" -> cb.greaterThanOrEqualTo(root.get(key), (Comparable) value);
             case "lte" -> cb.lessThanOrEqualTo(root.get(key), (Comparable) value);
-            case "in" -> {
-                if (!(value instanceof List<?> list)) throw new IllegalArgumentException("Value for 'in' must be list");
-                yield root.get(key).in(list);
-            }
+            case "in" -> root.get(key).in((List<?>) value);
             case "between" -> {
-                if (!(value instanceof List<?> list) || list.size() != 2)
-                    throw new IllegalArgumentException("Value for 'between' must be list of 2 elements");
-                Comparable<Object> from = (Comparable<Object>) list.get(0);
-                Comparable<Object> to = (Comparable<Object>) list.get(1);
-                yield cb.between(root.get(key), from, to);
+                List<?> list = (List<?>) value;
+                yield cb.between(root.get(key), (Comparable) list.get(0), (Comparable) list.get(1));
             }
             default -> throw new IllegalArgumentException("Unsupported operator: " + op);
         };
     }
-
 
     private void format() {
         for (String s : filterList) {
@@ -113,7 +99,7 @@ public class WorkerSpecification {
                 filter.put(key, value);
                 operators.put(key, op);
             } catch (Exception e) {
-                throw new BadRequestException("Invalid filter format: " + s + " - " + e.getMessage());
+                throw new IllegalArgumentException("Invalid filter format: " + s + " - " + e.getMessage());
             }
         }
     }
@@ -122,9 +108,9 @@ public class WorkerSpecification {
         return switch (key) {
             case "salary", "x", "y" -> Long.parseLong(rawValue);
             case "name", "organization" -> "%" + rawValue + "%";
-            case "startDate" -> LocalDate.parse(rawValue);
-            case "status" -> Status.valueOf(rawValue.toUpperCase());
-            case "position" -> Position.valueOf(rawValue.toUpperCase());
+            case "startDate" -> java.time.LocalDate.parse(rawValue);
+            case "status" -> com.example.model.Status.valueOf(rawValue.toUpperCase());
+            case "position" -> com.example.model.Position.valueOf(rawValue.toUpperCase());
             default -> rawValue;
         };
     }

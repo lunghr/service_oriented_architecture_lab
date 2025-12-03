@@ -1,20 +1,14 @@
 package com.example.controller;
 
-import com.example.model.NewWorker;
-import com.example.model.SearchCriteria;
-import com.example.model.Worker;
-import com.example.model.WorkerUpdateDTO;
-
-
+import com.example.model.*;
 import com.example.service.WorkerService;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.core.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/workers")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class WorkerController {
 
     private final WorkerService workerService;
@@ -24,47 +18,43 @@ public class WorkerController {
     }
 
     @PostMapping
-    public Response createWorker(@Valid @RequestBody NewWorker newWorker) {
-        Worker worker = workerService.create(newWorker);
-        return Response.status(Response.Status.CREATED).entity(worker).build();
+    public ResponseEntity<Worker> createWorker(@Valid @RequestBody NewWorker newWorker) {
+        return workerService.create(newWorker);
     }
 
     @GetMapping
-    public Response getWorkers(@RequestParam("page") int page, @RequestParam("size") int size) {
-        return Response.ok(workerService.getWorkers(page, size)).build();
+    public ResponseEntity<WorkersResponse> getWorkers(@RequestParam("page") int page, @RequestParam("size") int size) {
+        return workerService.getWorkers(page, size);
     }
 
     @GetMapping("/{id}")
-    public Response getWorkerById(@PathVariable("id") Long id) {
-        return Response.ok(workerService.getWorkerById(id)).build();
+    public ResponseEntity<Worker> getWorkerById(@PathVariable("id") Long id) {
+        return workerService.getWorkerById(id);
     }
 
     @PatchMapping("/{id}")
-    public Response updateWorkerById(@PathVariable("id") Long id,@Valid @RequestBody WorkerUpdateDTO workerUpdateDTO) {
-        return Response.ok(workerService.updateWorker(id, workerUpdateDTO)).build();
+    public ResponseEntity<Worker> updateWorkerById(@PathVariable("id") Long id, @Valid @RequestBody WorkerUpdateDTO workerUpdateDTO) {
+        return workerService.updateWorker(id, workerUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
-    public Response deleteWorkerById(@PathVariable("id") Long id) {
-        workerService.deleteWorkerById(id);
-        return Response.noContent().build();
+    public ResponseEntity<?> deleteWorkerById(@PathVariable("id") Long id) {
+        return workerService.deleteWorkerById(id);
     }
 
     @DeleteMapping("/by-start-date")
-    public Response deleteWorkerByStartDate(@RequestParam("startDate") String date) {
-        workerService.deleteWorkerByStartDate(date);
-        return Response.noContent().build();
+    public ResponseEntity<?> deleteWorkerByStartDate(@RequestParam("startDate") String date) {
+        return workerService.deleteWorkerByStartDate(date);
     }
 
     @PostMapping("/count-by-start-date")
-    public Response countWorkersByStartDate(@RequestParam("startDate") String date) {
-        int count = workerService.countWorkersWithStartDateBefore(date);
-        return Response.ok(Map.of("count", count)).build();
+    public ResponseEntity<Integer> countWorkersByStartDate(@RequestParam("startDate") String date) {
+        return workerService.countWorkersWithStartDateBefore(date);
     }
 
     @PostMapping("/search")
-    public Response getWorkersByCriteria(@RequestParam("page") int page, @RequestParam("size") int size,@Valid @RequestBody SearchCriteria searchCriteria){
-        return Response.ok(workerService.getWorkersByCriteria(page, size, searchCriteria)).build();
+    public ResponseEntity<WorkersResponse> getWorkersByCriteria(@RequestParam("page") int page, @RequestParam("size") int size, @Valid @RequestBody SearchCriteria searchCriteria) {
+        return workerService.getWorkersByCriteria(page, size, searchCriteria);
     }
 
 }
