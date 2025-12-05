@@ -23,4 +23,17 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundRequest(NotFoundException ex, WebRequest request) {
+        return ResponseEntity.badRequest().body(
+                ErrorResponse.builder()
+                        .path(request.getDescription(false).replace("uri=", ""))
+                        .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .timestamp(ZonedDateTime.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME))
+                        .message(ex.getMessage())
+                        .build()
+        );
+    }
 }
