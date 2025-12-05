@@ -1,6 +1,7 @@
-package com.example.model;
+package com.example.dto;
 
 
+import com.example.model.Worker;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class WorkersResponse {
+public class WorkerListResponseDTO {
     List<Worker> content;
     int page;
     int size;

@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.example.dto.NewWorkerDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,15 +50,15 @@ public class Worker {
     @JoinColumn(name = "organization", nullable = false)
     private Organization organization;
 
-    public static Worker fromNewWorker(NewWorker newWorker){
+    public static Worker fromNewWorker(NewWorkerDTO newWorkerDTO){
         return Worker.builder()
-                .name(newWorker.getName())
-                .coordinates(newWorker.getCoordinates())
-                .salary(newWorker.getSalary() != null ? newWorker.getSalary() : 0)
-                .startDate(newWorker.getStartDate())
-                .position(newWorker.getPosition() != null ? Position.valueOf(newWorker.getPosition()) : null)
-                .status(Status.valueOf(newWorker.getStatus()))
-                .organization(newWorker.getOrganization())
+                .name(newWorkerDTO.getName())
+                .coordinates(newWorkerDTO.getCoordinates())
+                .salary(newWorkerDTO.getSalary() != null ? newWorkerDTO.getSalary() : 0)
+                .startDate(newWorkerDTO.getStartDate())
+                .position(newWorkerDTO.getPosition() != null ? Position.valueOf(newWorkerDTO.getPosition()) : null)
+                .status(Status.valueOf(newWorkerDTO.getStatus()))
+                .organization(newWorkerDTO.getOrganization())
                 .build();
     }
 }

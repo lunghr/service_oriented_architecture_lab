@@ -1,5 +1,7 @@
-package com.example.model;
+package com.example.dto;
 
+import com.example.model.Coordinates;
+import com.example.model.Organization;
 import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +18,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Setter
 @Getter
-public class NewWorker {
+public class NewWorkerDTO {
 
     @NotNull
     @NotBlank

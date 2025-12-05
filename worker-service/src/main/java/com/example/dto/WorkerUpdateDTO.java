@@ -1,7 +1,8 @@
-package com.example.model;
+package com.example.dto;
 
+import com.example.model.Coordinates;
+import com.example.model.Organization;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;

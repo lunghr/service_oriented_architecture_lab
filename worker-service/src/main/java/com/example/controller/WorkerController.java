@@ -1,5 +1,8 @@
 package com.example.controller;
 
+import com.example.dto.NewWorkerDTO;
+import com.example.dto.WorkerUpdateDTO;
+import com.example.dto.WorkerListResponseDTO;
 import com.example.model.*;
 import com.example.service.WorkerService;
 import jakarta.validation.Valid;
@@ -18,12 +21,12 @@ public class WorkerController {
     }
 
     @PostMapping
-    public ResponseEntity<Worker> createWorker(@Valid @RequestBody NewWorker newWorker) {
-        return workerService.create(newWorker);
+    public ResponseEntity<Worker> createWorker(@Valid @RequestBody NewWorkerDTO newWorkerDTO) {
+        return workerService.create(newWorkerDTO);
     }
 
     @GetMapping
-    public ResponseEntity<WorkersResponse> getWorkers(@RequestParam("page") int page, @RequestParam("size") int size) {
+    public ResponseEntity<WorkerListResponseDTO> getWorkers(@RequestParam("page") int page, @RequestParam("size") int size) {
         return workerService.getWorkers(page, size);
     }
 
@@ -53,7 +56,7 @@ public class WorkerController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<WorkersResponse> getWorkersByCriteria(@RequestParam("page") int page, @RequestParam("size") int size, @Valid @RequestBody SearchCriteria searchCriteria) {
+    public ResponseEntity<WorkerListResponseDTO> getWorkersByCriteria(@RequestParam("page") int page, @RequestParam("size") int size, @Valid @RequestBody SearchCriteria searchCriteria) {
         return workerService.getWorkersByCriteria(page, size, searchCriteria);
     }
 

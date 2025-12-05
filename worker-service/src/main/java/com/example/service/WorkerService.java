@@ -1,13 +1,17 @@
 package com.example.service;
 
+import com.example.dto.NewWorkerDTO;
+import com.example.dto.WorkerUpdateDTO;
+import com.example.dto.WorkerListResponseDTO;
+import com.example.exception.BadRequestException;
+import com.example.mapper.WorkerMapper;
 import com.example.model.*;
 import com.example.repo.WorkerRepository;
+import com.example.exception.NotFoundException;
 
 import java.time.format.DateTimeParseException;
 
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,9 +41,9 @@ public class WorkerService {
     }
 
     @Transactional
-    public ResponseEntity<Worker> create(NewWorker newWorker) {
+    public ResponseEntity<Worker> create(NewWorkerDTO newWorkerDTO) {
         try {
-            Worker worker = Worker.fromNewWorker(newWorker);
+            Worker worker = Worker.fromNewWorker(newWorkerDTO);
 
             if (worker.getOrganization() != null) {
                 Organization savedOrg = organizationService.saveOrUpdate(worker.getOrganization());
@@ -53,13 +57,13 @@ public class WorkerService {
     }
 
     @Transactional
-    public ResponseEntity<WorkersResponse> getWorkers(int page, int size) {
+    public ResponseEntity<WorkerListResponseDTO> getWorkers(int page, int size) {
         System.out.println("Fetching workers with page: " + page + " and size: " + size);
         if (page < 1 || size <= 0) {
             throw new BadRequestException("Invalid pagination parameters: page must be >= 1 and size must be > 0");
         }
-        Page<Worker> pageResult = workerRepository.findAll(PageRequest.of(page, size)); //TODO check if page-1 needed
-        return ResponseEntity.ok().body(WorkersResponse.builder()
+        Page<Worker> pageResult = workerRepository.findAll(PageRequest.of(page - 1, size));
+        return ResponseEntity.ok().body(WorkerListResponseDTO.builder()
                 .totalElements(pageResult.getTotalElements())
                 .totalPages(pageResult.getTotalPages())
                 .content(pageResult.getContent())
@@ -120,7 +124,7 @@ public class WorkerService {
     }
 
     @Transactional
-    public ResponseEntity<WorkersResponse> getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria) {
+    public ResponseEntity<WorkerListResponseDTO> getWorkersByCriteria(int page, int size, SearchCriteria searchCriteria) {
         if (page < 1 || size <= 0) {
             throw new BadRequestException("Invalid pagination parameters");
         }
@@ -151,7 +155,7 @@ public class WorkerService {
             pageResult = workerRepository.findAll(pageable);
         }
 
-        return ResponseEntity.ok().body(WorkersResponse.builder()
+        return ResponseEntity.ok().body(WorkerListResponseDTO.builder()
                 .totalElements(pageResult.getTotalElements())
                 .totalPages(pageResult.getTotalPages())
                 .content(pageResult.getContent())

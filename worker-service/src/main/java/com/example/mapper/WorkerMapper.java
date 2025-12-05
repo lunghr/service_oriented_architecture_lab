@@ -1,7 +1,10 @@
-package com.example.model;
+package com.example.mapper;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.core.Response;
+import com.example.dto.WorkerUpdateDTO;
+import com.example.exception.BadRequestException;
+import com.example.model.Position;
+import com.example.model.Status;
+import com.example.model.Worker;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -24,12 +27,7 @@ public interface WorkerMapper {
         try {
             return Position.valueOf(positionStr);
         } catch (IllegalArgumentException e) {
-            throw new jakarta.ws.rs.BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(
-                    ErrorResponse.builder()
-                            .code(Response.Status.BAD_REQUEST.getStatusCode())
-                            .message("⚠️ Position not exist")
-                            .build()
-            ).build());
+            throw new BadRequestException("Position not exist");
         }
     }
 
@@ -40,12 +38,7 @@ public interface WorkerMapper {
         try {
             return Status.valueOf(statusStr);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException(Response.status(Response.Status.BAD_REQUEST).entity(
-                    ErrorResponse.builder()
-                            .code(Response.Status.BAD_REQUEST.getStatusCode())
-                            .message("⚠️ Status not exist")
-                            .build()
-            ).build());
+            throw new BadRequestException("Status not exist");
         }
     }
 }
