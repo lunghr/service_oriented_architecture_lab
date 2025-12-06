@@ -1,15 +1,33 @@
-version: '3.8'
-
 services:
+  consul:
+    image: hashicorp/consul:1.18
+    container_name: consul-server
+    command: agent -server -bootstrap-expect=1 -ui -client=0.0.0.0
+    ports:
+      - "8500:8500"
+
   haproxy:
-    image: haproxy:latest
+    build: .
     container_name: haproxy-balancer
-    restart: always
+    restart: unless-stopped
     ports:
       - "8082:8080"
       - "8445:8443"
     volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-      - ./certs:/usr/local/etc/haproxy/certs:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ./haproxy.tmpl:/etc/consul-template/haproxy.tmpl:ro
+      - ./certs:/etc/haproxy/certs:ro
+      - haproxy-config:/haproxy-config
+    command: >
+      consul-template
+      -consul-addr=http://consul:8500
+      -dedup
+      -wait=5s:30s
+      -template=/etc/consul-template/haproxy.tmpl:/haproxy-config/haproxy.cfg
+      -exec="haproxy -W -db -f /haproxy-config/haproxy.cfg"
+      -exec-reload-signal=SIGUSR2
+      -log-level=info
+    depends_on:
+      - consul
+
+volumes:
+  haproxy-config:

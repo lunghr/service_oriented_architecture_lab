@@ -1,6 +1,7 @@
 global
     log stdout format raw local0
     maxconn 25600
+    master-worker   # для seamless reloads
 
 defaults
     log     global
@@ -18,22 +19,22 @@ frontend fe_http
     redirect scheme https code 301 if !{ ssl_fc }
 
 frontend fe_https
-    bind *:8443 ssl crt /usr/local/etc/haproxy/certs/worker-server.pem
+    bind *:8443 ssl crt /etc/haproxy/certs/worker-server.pem
     mode http
-
     http-response set-header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
+    {{- if service "worker-service" }}
     use_backend be_worker_service if { path_beg /worker-service/api }
+    {{- end }}
     default_backend be_nothing
 
 backend be_worker_service
     balance roundrobin
-    option httpchk
+    option httpchk GET /worker-service/api/actuator/health
 
-    http-check send meth GET uri /worker-service/api/actuator/health hdr Host localhost
-
-    server worker1 host.docker.internal:8443 ssl verify none check
-    server worker2 host.docker.internal:8444 ssl verify none check
+    {{- range service "worker-service" }}
+    server {{ .Name }}_{{ .ID }} {{ .Address }}:{{ .Port }} ssl verify none check
+    {{- end }}
 
 backend be_nothing
     errorfile 503 /dev/null

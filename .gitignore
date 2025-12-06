@@ -20,6 +20,7 @@ Thumbs.db
 dist/
 test-service/
 worker-service/src/main/resources
+worker-service/haproxy-docker/certs
 
 
 

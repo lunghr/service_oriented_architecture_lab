@@ -1,11 +1,12 @@
 package com.example.service;
 
 import com.example.model.Worker;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.*;
 import java.util.*;
 
-public class WorkerSpecification implements Specification<Worker> {
+public class WorkerSpecification implements Specification<@NonNull Worker> {
     private final List<String> filterList;
     private final Map<String, Object> filter = new HashMap<>();
     private final Map<String, String> operators = new HashMap<>();

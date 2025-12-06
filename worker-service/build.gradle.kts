@@ -18,6 +18,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.postgresql:postgresql")
+    implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery:5.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("jakarta.json.bind:jakarta.json.bind-api")
     implementation("org.eclipse:yasson")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api")
@@ -36,4 +38,12 @@ tasks.test {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    archiveFileName.set("worker-service.jar")
+}
+
+tasks.named<Jar>("jar") {
+    enabled = false
 }
