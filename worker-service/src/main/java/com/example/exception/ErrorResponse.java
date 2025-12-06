@@ -1,15 +1,6 @@
 package com.example.exception;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
 @Builder
-public class ErrorResponse {
-    private final String timestamp;
-    private final int status;
-    private final String error;
-    private final String message;
-    private final String path;
-
+public record ErrorResponse(String timestamp, int status, String error, String message, String path) {
 }

@@ -1,6 +1,7 @@
 plugins {
-    id("java")
-    id("war")
+    java
+    id("org.springframework.boot") version "4.0.0"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.example"
@@ -11,30 +12,29 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.springframework:spring-framework-bom:6.1.13"))
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.2"))
-    implementation("org.springframework:spring-webmvc")
-    compileOnly ("org.projectlombok:lombok:1.18.30")
-    annotationProcessor ("org.projectlombok:lombok:1.18.30")
-    implementation("org.springframework:spring-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("com.fasterxml.jackson.core:jackson-databind")
-    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
-    compileOnly("jakarta.validation:jakarta.validation-api:3.0.2")
-    compileOnly("jakarta.annotation:jakarta.annotation-api:2.1.1")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.springframework:spring-test")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.war{
-    archiveFileName.set("spring-service.war")
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    archiveFileName.set("hr-service.jar")
+}
+
+tasks.named<Jar>("jar") {
+    enabled = false
 }

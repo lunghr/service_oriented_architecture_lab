@@ -1,88 +1,58 @@
 package com.example.controller;
 
-import com.example.model.NotFoundException;
-import com.example.model.Response;
+import com.example.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/hr")
 public class HRController {
 
-    private final static String BASE_URL = "https://localhost:8543/jaxrs-service/api/workers/";
+    private final static String BASE_URL = "https://localhost:8445/worker-service/api/workers/";
+    private final RestTemplate restTemplate;
 
-    private final WebClient webClient = WebClient.create();
+    public HRController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @PostMapping(value = "/fire/{id}", produces = "application/json")
     public ResponseEntity<?> fireEmployee(@PathVariable("id") Long id) {
         String jsonPayload = "{\"status\":\"FIRED\"}";
-        webClient.patch()
-                .uri(BASE_URL + id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jsonPayload)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().is2xxSuccessful()) {
-                        return response.bodyToMono(String.class);
-                    } else if (response.statusCode().is4xxClientError()) {
-                        return Mono.error(new NotFoundException("Worker with ID " + id + " not found."));
-                    } else {
-                        return response.createException().flatMap(Mono::error);
-                    }
-                })
-                .block();
-        return ResponseEntity.ok(
-                Response.builder().message("Worker with ID " + id + " successfully fired!").build()
-        );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
+        try {
+            restTemplate.exchange(BASE_URL + id, HttpMethod.PATCH, request, String.class);
+            return ResponseEntity.ok().body("Worker with ID " + id + " successfully fired!");
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Worker with ID " + id + " not found.");
+        }
     }
 
     @PostMapping(value = "/index/{id}/{coeff}")
     public ResponseEntity<?> indexSalary(@PathVariable("id") Long id, @PathVariable("coeff") Double coeff) {
-        System.out.println("=== SSL DEBUG ===");
-        System.out.println("java.home = " + System.getProperty("java.home"));
-        System.out.println("java.version = " + System.getProperty("java.version"));
-        System.out.println("user.dir = " + System.getProperty("user.dir"));
+        try {
+            ResponseEntity<JsonNode> response = restTemplate.getForEntity(BASE_URL + id, JsonNode.class);
+            Long salary = response.getBody().get("salary").asLong();
 
-        Long salary = webClient.get()
-                .uri(BASE_URL + id)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().is2xxSuccessful()) {
-                        return response.bodyToMono(JsonNode.class)
-                                .map(jsonNode -> jsonNode.get("salary").asLong());
-                    } else if (response.statusCode().is4xxClientError()) {
-                        return Mono.error(new NotFoundException("Worker with ID " + id + " not found."));
-                    } else {
-                        return response.createException().flatMap(Mono::error);
-                    }
-                })
-                .block();
+            long newSalary = Math.round(salary * coeff);
+            String jsonPayload = "{\"salary\":" + newSalary + "}";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
 
-        long newSalary = Math.round(salary * coeff);
-        String jsonPayload = "{\"salary\":" + newSalary + "}";
-        webClient.patch()
-                .uri(BASE_URL + id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(jsonPayload)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().is2xxSuccessful()) {
-                        return response.bodyToMono(String.class);
-                    } else if (response.statusCode().is4xxClientError()) {
-                        return Mono.error(new NotFoundException("Worker with ID " + id + " not found."));
-                    } else {
-                        return response.createException().flatMap(Mono::error);
-                    }
-                })
-                .block();
-
-        return ResponseEntity.ok(
-                Response.builder().message(String.valueOf(newSalary)).build()
-        );
+            restTemplate.exchange(BASE_URL + id, HttpMethod.PATCH, request, String.class);
+            return ResponseEntity.ok().body(String.valueOf(newSalary));
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new NotFoundException("Worker with ID " + id + " not found.");
+        }
     }
 
-
+    @PostMapping("/hello")
+    public ResponseEntity<String> hello() {
+        return ResponseEntity.ok("Hello from HR Service!");
+    }
 }
-
-
