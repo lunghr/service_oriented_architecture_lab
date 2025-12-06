@@ -6,6 +6,8 @@ import com.example.dto.WorkerListResponseDTO;
 import com.example.model.*;
 import com.example.service.WorkerService;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/workers")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class WorkerController {
+
+    private final Logger logger = LogManager.getLogger(WorkerController.class);
 
     private final WorkerService workerService;
 
@@ -27,6 +31,7 @@ public class WorkerController {
 
     @GetMapping
     public ResponseEntity<WorkerListResponseDTO> getWorkers(@RequestParam("page") int page, @RequestParam("size") int size) {
+        logger.info("Fetching workers - page: {}, size: {}", page, size);
         return workerService.getWorkers(page, size);
     }
 

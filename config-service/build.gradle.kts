@@ -16,6 +16,8 @@ repositories {
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-config-server")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
+    implementation("org.springframework.vault:spring-vault-core")
 }
 
 dependencyManagement {
