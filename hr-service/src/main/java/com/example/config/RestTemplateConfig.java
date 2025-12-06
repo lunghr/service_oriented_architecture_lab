@@ -16,7 +16,6 @@ import javax.net.ssl.SSLContext;
 @Configuration
 public class RestTemplateConfig {
     @Bean
-    @LoadBalanced
     public RestTemplate restTemplate() throws Exception {
         TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
 
