@@ -20,6 +20,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
     compileOnly("org.projectlombok:lombok:1.18.30")
