@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("war")
+    id("com.github.bjornvester.xjc") version "1.8.2" // Для генерации классов из XSD
 }
 
 group = "com.example"
@@ -11,27 +12,24 @@ repositories {
 }
 
 dependencies {
+    implementation("org.springframework.ws:spring-ws-core:4.0.11")
+    implementation("wsdl4j:wsdl4j:1.6.3")
+    implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.2")
+    implementation("org.glassfish.jaxb:jaxb-runtime:4.0.5")
     implementation(platform("org.springframework:spring-framework-bom:6.1.13"))
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.2"))
-    implementation("org.springframework:spring-webmvc")
-    compileOnly ("org.projectlombok:lombok:1.18.30")
-    annotationProcessor ("org.projectlombok:lombok:1.18.30")
-    implementation("io.projectreactor.netty:reactor-netty-http:1.1.8")
-    implementation("org.springframework:spring-webflux")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.springframework:spring-context")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
-    compileOnly("jakarta.validation:jakarta.validation-api:3.0.2")
     compileOnly("jakarta.annotation:jakarta.annotation-api:2.1.1")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.springframework:spring-test")
 }
+
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.war{
+tasks.war {
     archiveFileName.set("hr-service.war")
 }
 
