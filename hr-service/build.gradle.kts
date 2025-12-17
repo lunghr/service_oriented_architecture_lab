@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("war")
-    id("com.github.bjornvester.xjc") version "1.8.2" // Для генерации классов из XSD
+    id("com.github.bjornvester.xjc") version "1.8.2"
 }
 
 group = "com.example"
@@ -13,8 +13,12 @@ repositories {
 
 dependencies {
     implementation("org.springframework.ws:spring-ws-core:4.0.11")
+    implementation("org.springframework:spring-webflux:6.1.13")
+    implementation("io.projectreactor.netty:reactor-netty:1.1.22")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
     implementation("wsdl4j:wsdl4j:1.6.3")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.2")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("org.glassfish.jaxb:jaxb-runtime:4.0.5")
     implementation(platform("org.springframework:spring-framework-bom:6.1.13"))
     implementation("org.springframework:spring-context")
@@ -23,6 +27,9 @@ dependencies {
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
     compileOnly("jakarta.annotation:jakarta.annotation-api:2.1.1")
 }
+
+
+
 
 
 tasks.test {
@@ -36,4 +43,18 @@ tasks.war {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(layout.buildDirectory.dir("generated/sources/xjc/java"))
+        }
+    }
+}
+
+xjc {
+    xsdDir.set(file("src/main/resources/xsd"))
+    outputJavaDir.set(layout.buildDirectory.dir("generated/sources/xjc/java").get().asFile)
+    defaultPackage.set("com.example.generated")
 }

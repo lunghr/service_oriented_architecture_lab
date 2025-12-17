@@ -1,29 +1,35 @@
-package com.example.controller;
+package com.example.endpoint;
 
+import com.example.generated.*;
 import com.example.model.NotFoundException;
-import com.example.model.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import reactor.core.publisher.Mono;
 
-@RestController
-@RequestMapping("/hr")
-public class HRController {
+@Endpoint
+public class HREndpoint {
 
+    private static final String NAMESPACE_URI = "http://example.com/hr-service";
     private final static String BASE_URL = "https://localhost:8445/worker-service/api/workers/";
 
     private final WebClient webClient;
 
-    public HRController(WebClient webClient) {
+    // WebClient внедряется через конструктор благодаря конфигурации выше
+    public HREndpoint(WebClient webClient) {
         this.webClient = webClient;
     }
 
-    @PostMapping(value = "/fire/{id}", produces = "application/json")
-    public ResponseEntity<?> fireEmployee(@PathVariable("id") Long id) {
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "FireEmployeeRequest")
+    @ResponsePayload
+    public FireEmployeeResponse fireEmployee(@RequestPayload FireEmployeeRequest request) {
+        Long id = request.getId(); // Предполагаем, что в XSD поле называется id
         String jsonPayload = "{\"status\":\"FIRED\"}";
+
         webClient.patch()
                 .uri(BASE_URL + id)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -37,19 +43,26 @@ public class HRController {
                         return response.createException().flatMap(Mono::error);
                     }
                 })
-                .block();
-        return ResponseEntity.ok(
-                Response.builder().message("Worker with ID " + id + " successfully fired!").build()
-        );
+                .block(); // Блокируем поток, так как SOAP синхронный
+
+        FireEmployeeResponse response = new FireEmployeeResponse();
+        Response serviceResponse = new Response();
+        serviceResponse.setMessage("Worker with ID " + id + " successfully fired!");
+        response.setResponse(serviceResponse);
+        return response;
     }
 
-    @PostMapping(value = "/index/{id}/{coeff}")
-    public ResponseEntity<?> indexSalary(@PathVariable("id") Long id, @PathVariable("coeff") Double coeff) {
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "IndexSalaryRequest")
+    @ResponsePayload
+    public IndexSalaryResponse indexSalary(@RequestPayload IndexSalaryRequest request) {
+        Long id = request.getId();
+        Double coeff = request.getCoeff();
+
+        // Логирование из старого контроллера
         System.out.println("=== SSL DEBUG ===");
         System.out.println("java.home = " + System.getProperty("java.home"));
-        System.out.println("java.version = " + System.getProperty("java.version"));
-        System.out.println("user.dir = " + System.getProperty("user.dir"));
 
+        // 1. Получаем текущую зарплату
         Long salary = webClient.get()
                 .uri(BASE_URL + id)
                 .exchangeToMono(response -> {
@@ -64,8 +77,11 @@ public class HRController {
                 })
                 .block();
 
+        // 2. Вычисляем новую
         long newSalary = Math.round(salary * coeff);
         String jsonPayload = "{\"salary\":" + newSalary + "}";
+
+        // 3. Обновляем
         webClient.patch()
                 .uri(BASE_URL + id)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -81,19 +97,20 @@ public class HRController {
                 })
                 .block();
 
-        return ResponseEntity.ok(
-                Response.builder().message(String.valueOf(newSalary)).build()
-        );
+        IndexSalaryResponse response = new IndexSalaryResponse();
+        Response serviceResponse = new Response();
+        serviceResponse.setMessage(String.valueOf(newSalary));
+        response.setResponse(serviceResponse);
+        return response;
     }
 
-    @PostMapping("/hi")
-    public ResponseEntity<?> sayHi() {
-        return ResponseEntity.ok(
-                Response.builder().message("Hi from HR service!").build()
-        );
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "SayHiRequest")
+    @ResponsePayload
+    public SayHiResponse sayHi(@RequestPayload SayHiRequest request) {
+        SayHiResponse response = new SayHiResponse();
+        Response serviceResponse = new Response();
+        serviceResponse.setMessage("Hi from HR service!");
+        response.setResponse(serviceResponse);
+        return response;
     }
-
-
 }
-
-
