@@ -7,6 +7,7 @@ import jakarta.xml.bind.Marshaller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,32 +22,68 @@ import java.io.StringWriter;
 
 @Endpoint
 public class HREndpoint {
+    private static final String NAMESPACE_URI = "http://example.com/hr-service";
+    private final static String PROXY_BASE_URL = "http://localhost:8081/api/hr/";
 
-    private static final String NAMESPACE_URI = "http://example.com/hr-service";;
+    private final WebClient webClient;
+
+    public HREndpoint(WebClient webClient) {
+        this.webClient = webClient;
+    }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "FireEmployeeRequest")
     @ResponsePayload
     public FireEmployeeResponse fireEmployee(@RequestPayload FireEmployeeRequest request) {
-        Long id = request.getId();
-        System.out.println("\uD83D\uDD25 Firing employee: id=" + id);
+        long id = request.getId();
+        webClient.patch()
+                .uri(PROXY_BASE_URL + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"status\": \"FIRED\"}")
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
         FireEmployeeResponse response = new FireEmployeeResponse();
-        Response serviceResponse = new Response();
-        serviceResponse.setMessage("Worker with ID " + id + " successfully fired!");
-        response.setResponse(serviceResponse);
-        System.out.println("✅ Response message: " + serviceResponse.getMessage());
-                return response;
+        response.setMessage("Employee with ID " + id + " has been fired!");
+        return response;
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "IndexSalaryRequest")
     @ResponsePayload
     public IndexSalaryResponse indexSalary(@RequestPayload IndexSalaryRequest request) {
-        long currentSalary = request.getCurrentSalary();
+        Long id = request.getId();
         double coeff = request.getCoeff();
+
+        CurrentSalaryResponse currentSalaryResponse = webClient.get()
+                .uri(PROXY_BASE_URL + id)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        Mono.error(new NotFoundException("Worker with ID " + id + " not found")))
+                .onStatus(HttpStatusCode::is5xxServerError, response ->
+                        Mono.error(new RuntimeException("Server error from worker-service")))
+                .bodyToMono(CurrentSalaryResponse.class)
+                .block();
+        long currentSalary = currentSalaryResponse != null ? currentSalaryResponse.getCurrentSalary() : 0;
         long newSalary = Math.round(currentSalary * coeff);
+
+        webClient.patch()
+                .uri(PROXY_BASE_URL + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"salary\":" + newSalary + "}")
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+
         IndexSalaryResponse response = new IndexSalaryResponse();
-        System.out.println("\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08Indexing salary: currentSalary=" + currentSalary + ", coeff=" + coeff);
         response.setNewSalary(newSalary);
-        System.out.println("⚠\uFE0FResponse new salary:" + response.getNewSalary());
+        return response;
+    }
+
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "SayHiRequest")
+    @ResponsePayload
+    public SayHiResponse sayHi(@RequestPayload SayHiRequest request) {
+        SayHiResponse response = new SayHiResponse();
+        response.setResponse("Hello!");
         return response;
     }
 }

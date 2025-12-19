@@ -5,12 +5,6 @@
            elementFormDefault="qualified">
 
     <!-- Базовые типы данных -->
-    <xs:complexType name="Response">
-        <xs:sequence>
-            <xs:element name="message" type="xs:string"/>
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="ErrorResponse">
         <xs:sequence>
             <xs:element name="code" type="xs:int"/>
@@ -30,7 +24,7 @@
     <xs:element name="FireEmployeeResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="response" type="tns:Response"/>
+                <xs:element name="message" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -39,8 +33,16 @@
     <xs:element name="IndexSalaryRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="currentSalary" type="xs:long"/>
+                <xs:element name="id" type="xs:long"/>
                 <xs:element name="coeff" type="xs:double"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="CurrentSalaryResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="currentSalary" type="xs:long"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -64,7 +66,7 @@
     <xs:element name="SayHiResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="response" type="tns:Response"/>
+                <xs:element name="response" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
