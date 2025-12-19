@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
@@ -22,7 +23,7 @@ import javax.net.ssl.SSLException;
 @ComponentScan("com.example.endpoint")
 public class WebServiceConfig {
 
-    @Bean(name = "hr-service")
+    @Bean(name = "hr")
     public DefaultWsdl11Definition defaultWsdl11Definition(XsdSchema hrSchema) {
         DefaultWsdl11Definition wsdl = new DefaultWsdl11Definition();
         wsdl.setPortTypeName("HRPort");
@@ -40,7 +41,7 @@ public class WebServiceConfig {
     // Добавляем WebClient для общения с worker-service
     @Bean
     public WebClient webClient() throws SSLException {
-        // Настройка SSL для доверия самоподписанным сертификатам (как было в логах)
+
         SslContext sslContext = SslContextBuilder.forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
                 .build();
@@ -51,5 +52,12 @@ public class WebServiceConfig {
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
+    }
+
+    @Bean
+    public Jaxb2Marshaller marshaller() {
+        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+        marshaller.setContextPath("com.example.generated"); // Укажите пакет с JAXB-классами
+        return marshaller;
     }
 }

@@ -35,11 +35,11 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- Операция 2: Index Salary (индексация зарплаты) -->
+    <!-- Операция 2: Index Salary -->
     <xs:element name="IndexSalaryRequest">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="id" type="xs:long"/>
+                <xs:element name="currentSalary" type="xs:long"/>
                 <xs:element name="coeff" type="xs:double"/>
             </xs:sequence>
         </xs:complexType>
@@ -48,10 +48,11 @@
     <xs:element name="IndexSalaryResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="response" type="tns:Response"/>
+                <xs:element name="newSalary" type="xs:long"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
 
     <!-- Операция 3: Say Hi (приветствие) -->
     <xs:element name="SayHiRequest">

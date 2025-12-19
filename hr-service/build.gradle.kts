@@ -16,6 +16,7 @@ dependencies {
     implementation("org.springframework:spring-webflux:6.1.13")
     implementation("io.projectreactor.netty:reactor-netty:1.1.22")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    implementation("org.springframework:spring-webmvc:6.1.13")
     implementation("wsdl4j:wsdl4j:1.6.3")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.2")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -24,6 +25,10 @@ dependencies {
     implementation("org.springframework:spring-context")
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-jcl:2.23.1")
+
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
     compileOnly("jakarta.annotation:jakarta.annotation-api:2.1.1")
 }

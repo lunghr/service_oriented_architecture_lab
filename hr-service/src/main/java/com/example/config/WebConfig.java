@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "com.example.controller")
+@ComponentScan(basePackages = "com.example")
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
@@ -18,4 +18,5 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("*")
                 .allowedHeaders("origin", "content-type", "accept", "authorization");
     }
+
 }
